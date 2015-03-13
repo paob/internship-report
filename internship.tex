@@ -1,0 +1,133 @@
+\documentclass{beamer}
+
+\beamertemplatenavigationsymbolsempty{}
+
+\title{Optimization of a Distributed Storage Architecture under Uncertain
+Demand}
+\subtitle{A Study in Fast Flow Algorithms}
+\date{March 20, 2015}
+
+\author{Paul Beaujean\inst{*}\inst{\dag} \and \'Eric Gourdin\inst{\dag}}
+\institute{\inst{*}ENSIIE-MPRO \and \inst{\dag}Orange Labs}
+
+\begin{document}
+
+\frame{\titlepage}
+
+\begin{frame}
+    \frametitle{Table of Contents}
+    \tableofcontents{}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Context: Increase in IP Video}
+
+    Increase in IP video traffic over the past few years.
+
+    Believed to amount for 80\% of all IP traffic by 2020.
+
+\end{frame}
+
+\begin{frame}
+    \frametitle{Content Delivery Network}
+
+    A Content Delivery Network is a distributed storage architecture.
+
+    Provides content to users by caching it close to where it is requested.
+
+    Less upstream bandwidth consumption.
+\end{frame}
+
+\begin{frame}
+    \frametitle{Content Delivery = Multicommodity Flow}
+
+    Insert a beautiful picture of multiple servers delivering contents to
+    multiple clients.
+
+\end{frame}
+
+\begin{frame}
+    \frametitle{Fractional Multiflow is in P}
+    
+    A peculiar problem that does not admit a combinatorial algorithm.
+
+    In P because it can be solved with IPM on a poly-size edge formulation.
+
+
+\end{frame}
+
+\begin{frame}
+    \frametitle{Too large of a LP}
+
+    Prohibitively expensive. (cue to Sourour's $n^3$ trick)
+
+    Solving it in practice with a exponential-size path formulation.
+\end{frame}
+
+\begin{frame}
+    \frametitle{Column Generation with the path formulation}
+    
+    Column generation is a version of the simplex algorithm without an implicit 
+    tableau.
+    
+    Pivot rule // Separation oracle // Shortest path problem.
+
+    Simplex algorithm: no worst-case poly-time guarantee
+
+\end{frame}
+
+\begin{frame}
+    \frametitle{Designing a combinatorial FPTAS}
+
+    Different approach: poly-time combinatorial algorithm but
+    $\epsilon$-approximate solution.
+
+    FPTAS An algorithm that provides a solution within an arbitrary
+    approximation guarantee and runs in time bounded by a polynomial in the
+    instance size and in the approximation guarantee.
+
+\end{frame}
+
+\begin{frame}
+    \frametitle{Learning from experts}
+
+    Actions
+
+    Gain
+
+    Weights
+
+\end{frame}
+
+\begin{frame}
+    \frametitle{A surprising result: bounded regret}
+
+    $G \geq G_a - \epsilon |G_a| - \frac{\ln |A|}{\epsilon}, \forall a \in A$
+\end{frame}
+
+\begin{frame}
+    \frametitle{Mapping multiplicative weights concepts to multiflow}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Combining regret bounds and flow on shortest paths}
+
+\end{frame}
+
+\begin{frame}
+    \frametitle{Numerical experiments}
+
+\end{frame}
+
+\begin{frame}
+    \frametitle{Conclusion}
+
+    CDN design gives a strong incentive to study multiflow.
+
+    Interesting alternative to exact resolution.
+
+
+\end{frame}
+
+
+\end{document}
