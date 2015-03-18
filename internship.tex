@@ -1,4 +1,5 @@
 \documentclass{beamer}
+\usepackage{pgfplots}
 
 \beamertemplatenavigationsymbolsempty{}
 
@@ -22,9 +23,33 @@ Demand}
 \begin{frame}
     \frametitle{Context: Increase in IP Video}
 
-    Increase in IP video traffic over the past few years.
+    \begin{block}{The rise of IP video}
+        \begin{itemize}
+            \item Increase in IP video traffic over the past few years.
+            \item Believed to amount for 80\% of all IP traffic by 2020.
+        \end{itemize}
+    \end{block}
 
-    Believed to amount for 80\% of all IP traffic by 2020.
+    \begin{tikzpicture}
+        \begin{axis}[
+            ybar,
+            enlargelimits=0.15,
+            legend
+            style={at={(0.5,-0.15)},
+            anchor=north,legend columns=-1},
+            ylabel={\#participants},
+            symbolic x coords={tool8,tool9,tool10},
+            xtick=data,
+            nodes near coords,
+            nodes near coords align={vertical},
+            ]
+            \addplot coordinates {(tool8,7) (tool9,9) (tool10,4)};
+            \addplot coordinates {(tool8,4) (tool9,4) (tool10,4)};
+            \addplot coordinates {(tool8,1) (tool9,1) (tool10,1)};
+            \legend{used,understood,not understood}
+        \end{axis}
+    \end{tikzpicture}
+    Insert nice picture from Cisco Visual Networking Index, hopefully TikZ?
 
 \end{frame}
 
@@ -52,7 +77,6 @@ Demand}
     A peculiar problem that does not admit a combinatorial algorithm.
 
     In P because it can be solved with IPM on a poly-size edge formulation.
-
 
 \end{frame}
 
