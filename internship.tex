@@ -1,5 +1,14 @@
 \documentclass{beamer}
+\usepackage{tikz}
 \usepackage{pgfplots}
+\usepackage{mathtools}
+\newcommand{\argmin}{\operatornamewithlimits{argmin}}
+
+\usetikzlibrary{arrows,positioning} 
+\tikzset{>=stealth',
+    punkt/.style={rectangle, rounded corners, draw=black, very thick,
+                    text width=6.5em, minimum height=2em, text centered},
+    pil/.style={->, thick, shorten <=2pt, shorten >=2pt,}}
 
 \beamertemplatenavigationsymbolsempty{}
 
@@ -20,39 +29,38 @@ Demand}
     \tableofcontents{}
 \end{frame}
 
+\section{Context}
+\subsection{The rise of IP video}
 \begin{frame}
-    \frametitle{Context: Increase in IP Video}
-
-    \begin{block}{The rise of IP video}
-        \begin{itemize}
-            \item Increase in IP video traffic over the past few years.
-            \item Believed to amount for 80\% of all IP traffic by 2020.
-        \end{itemize}
-    \end{block}
+    \frametitle{Context: The rise of IP video}
 
     \begin{tikzpicture}
         \begin{axis}[
             ybar,
             enlargelimits=0.15,
-            legend
-            style={at={(0.5,-0.15)},
+            legend style={at={(0.5,-0.15)},
             anchor=north,legend columns=-1},
-            ylabel={\#participants},
-            symbolic x coords={tool8,tool9,tool10},
+            ylabel={$10^{18}$ bytes per month},
+            symbolic x coords={2013,2015,2018},
             xtick=data,
             nodes near coords,
             nodes near coords align={vertical},
             ]
-            \addplot coordinates {(tool8,7) (tool9,9) (tool10,4)};
-            \addplot coordinates {(tool8,4) (tool9,4) (tool10,4)};
-            \addplot coordinates {(tool8,1) (tool9,1) (tool10,1)};
-            \legend{used,understood,not understood}
+            \addplot coordinates {(2013,7) (2015,8) (2018,7)};
+            \addplot coordinates {(2013,11) (2015,13) (2018,21)};
+            \addplot coordinates {(2013,32) (2015,53) (2018,103)};
+            \legend{File sharing,Web,IP video}
         \end{axis}
     \end{tikzpicture}
-    Insert nice picture from Cisco Visual Networking Index, hopefully TikZ?
+
+    \begin{itemize}
+        \item IP video: 80\% of all IP traffic by 2020.
+    \end{itemize}
+    \hfill\tiny{Source: CISCO Visual Networking Index 2014}
 
 \end{frame}
 
+\subsection{Content Delivery Network}
 \begin{frame}
     \frametitle{Content Delivery Network}
 
@@ -63,6 +71,7 @@ Demand}
     Less upstream bandwidth consumption.
 \end{frame}
 
+\section{Multicommodity Flow}
 \begin{frame}
     \frametitle{Content Delivery = Multicommodity Flow}
 
@@ -74,83 +83,247 @@ Demand}
 \begin{frame}
     \frametitle{Fractional Multiflow is in P}
     
-    A peculiar problem that does not admit a combinatorial algorithm.
+    No combinatorial algorithm known to solve multiflow.
 
-    In P because it can be solved with IPM on a poly-size edge formulation.
+    \begin{block}{Polynomial-size LP with edge formulation}
+    \begin{align*}
+        \max & \sum_{s,t \in K} \sum_{a \in \delta^+(s)} f_a^{s,t}\\
+        \text{s.t.} & \sum_{s,t \in K} f_a^{s,t} \leq c_a, ~\forall a \in A\\
+                    & \sum_{s,t\in K} \sum_{a \in \delta^-(v)} f_a^{s,t} =
+                      \sum_{s,t \in K} \sum_{a \in \delta^+(v)} f_a^{s,t},
+                      ~ \forall v \in V \setminus \{s,t\}\\
+                    & \sum_{a \in \delta^-(s)} f_a^{s,t} = 0,
+                      ~ \forall s \in S \\
+                    & f\in \mathbb{R}_+^{|A \times K|}
+    \end{align*}
+    can be solved in polynomial time with an IPM $\implies \textsc{Multiflow}
+    \in P$
+    \end{block}
+
+\end{frame}
+
+\subsection{Column generation}
+\begin{frame}
+    \frametitle{Can it be solved on large instances?}
+
+    \begin{block}{Implicit exponential-size path formulation}
+    \begin{align*}
+    (\Pi) & \begin{dcases}
+    \max~ & \sum_{p\in\mathcal{P}} f_p\\
+    \text{s.t.}~& \sum_{p\ni a} f_p \leq c_a,~\forall a\in A ~(l_a)\\
+    & f \in \mathbb{R}_+^{|\mathcal{P}|}
+    \end{dcases}
+    \\
+    (\Delta) & \begin{dcases}
+    \min~ & \sum_{a\in A} c_a l_a\\
+    \text{s.t.}~& \sum_{a\in p} l_a \geq 1,~\forall p\in \mathcal{P} ~(f_p)\\
+    & l \in \mathbb{R}_+^{|A|}
+    \end{dcases}
+    \end{align*}
+    \end{block}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Column generation}
+
+        \begin{tikzpicture}[node distance=1cm, auto,]
+            \node[punkt]
+            (shortestpath)
+            {Shortest path
+             \begin{equation*}
+                \argmin_{p\in \mathcal{P}} \sum_{a\in p} l_a
+             \end{equation*}};
+            \node[punkt, inner sep=5pt,below=0.5cm of shortestpath]
+                (columngen) {Column generation};
+                
+            \node[above=of shortestpath]
+                (dummy) {};
+            \node[right=of dummy]
+            (t)
+            {flow variable $f_p$}
+                edge[pil,<-, bend left=45] (shortestpath.east) 
+                edge[pil,<-, bend left=45] (columngen.east); 
+            \node[left=of dummy]
+            (g) {length constraint
+                $\sum_{a\in p} l_a \geq 1$
+                }
+                edge[pil, bend right=45] (shortestpath.west)
+                edge[pil, bend right=45] node[midway] {Separation} (columngen.west)
+                edge[pil,<->, bend left=45] node[auto] {Duality} (t);
+        \end{tikzpicture}
+
+\end{frame}
+
+\subsection{FPTAS}
+\begin{frame}
+    \frametitle{Primal-dual approximation algorithm}
+
+    \begin{block}{Fully Polynomial Time Approximation Scheme}
+        An algorithm that returns a solution of value within $\epsilon$ of the
+        optimal value:
+        \begin{itemize}
+            \item in time bounded by a polynomial in the instance size,
+            \item in time bounded by a polynomial in $\epsilon^{-1}$.
+        \end{itemize}
+    \end{block}
+
+    There exists combinatorial algorithms that achieve such guarantees.
+
+    \begin{block}{How to design one?}
+        \begin{itemize}
+            \item based on the multiplicative weights algorithm
+            \item reuse ideas from column generation
+        \end{itemize}
+    \end{block}
 
 \end{frame}
 
 \begin{frame}
-    \frametitle{Too large of a LP}
+    \frametitle{Multiplicative weights}
 
-    Prohibitively expensive. (cue to Sourour's $n^3$ trick)
+    \begin{block}{Background}
+        Discovered several times:
+        \begin{itemize}
+            \item 1950's: machine learning
+            \item 1970's: continuous optimization
+            \item 2000's: design of competitive online algorithms
+            \item 2010's: approximation algorithms for SDP
+        \end{itemize}
+    \end{block}
+    \begin{block}{Definition}
+        Given a finite set of actions with bounded gain
+        \begin{equation*}
+            \mathcal{A} = \{ a~|~g_a^t \in [-1, 1]  \}
+        \end{equation*}
 
-    Solving it in practice with a exponential-size path formulation.
+        Associate weights 
+        \begin{equation*}
+        \forall a\in\mathcal{A}~
+        \begin{dcases}
+            \lambda_a^{1} &= 1\\
+            \lambda_a^{t+1} &= \lambda_a^t (1 + \epsilon~g_a^t)
+        \end{dcases}
+        \end{equation*}
+    \end{block}
+
 \end{frame}
 
 \begin{frame}
-    \frametitle{Column Generation with the path formulation}
+    \frametitle{A surprising result}
+
+    \begin{block}{The multiplicative weights algorithm}
+        \begin{itemize}
+            \item At round $t$, choose action $a$ with probability
+                $\dfrac{\lambda_a^t}{\sum_a \lambda_a^t}$
+        \end{itemize}
+    \end{block}
+
+    \begin{block}{has a guaranteed gain of}
+        \begin{equation*}
+        G \geq G_a - \epsilon |G_a| - \frac{\ln |A|}{\epsilon}, \forall a \in
+        \mathcal{A}
+        \end{equation*}
+    \end{block}
     
-    Column generation is a version of the simplex algorithm without an implicit 
-    tableau.
-    
-    Pivot rule // Separation oracle // Shortest path problem.
+    \begin{equation*}
+    \begin{array}{l l}
+        G = \sum_t \mathbb{E}(g^t) & \text{expected gain of the algorithm}\\
+        G_a = \sum_t g^t_a & \text{gain of action $a$}
+    \end{array}
+    \end{equation*}
 
-    Simplex algorithm: no worst-case poly-time guarantee
-
-\end{frame}
-
-\begin{frame}
-    \frametitle{Designing a combinatorial FPTAS}
-
-    Different approach: poly-time combinatorial algorithm but
-    $\epsilon$-approximate solution.
-
-    FPTAS An algorithm that provides a solution within an arbitrary
-    approximation guarantee and runs in time bounded by a polynomial in the
-    instance size and in the approximation guarantee.
-
-\end{frame}
-
-\begin{frame}
-    \frametitle{Learning from experts}
-
-    Actions
-
-    Gain
-
-    Weights
-
-\end{frame}
-
-\begin{frame}
-    \frametitle{A surprising result: bounded regret}
-
-    $G \geq G_a - \epsilon |G_a| - \frac{\ln |A|}{\epsilon}, \forall a \in A$
 \end{frame}
 
 \begin{frame}
     \frametitle{Mapping multiplicative weights concepts to multiflow}
+
+    \begin{block}{Mapping concepts}
+    \begin{tabular}{r | c c c | l}
+    actions & $\mathcal{A}$ & $\to$ & $A$ & arcs\\
+    gain & $g_a$ & $\to$ & $f_a / c_a$ & arc congestion\\
+    compound gain & $\lambda_a$ & $\to$ & $l_a$ & length (compound congestion)
+    \end{tabular}
+    \end{block}
+
+    \begin{block}{Iterative primal-dual algorithm}
+        Successively adds flow to the graph
+    \end{block}
+    
+    \begin{block}{Choosing arcs by constraint separation}
+        Instead of choosing arcs randomly:
+        \begin{itemize}
+            \item compute shortest path w.r.t.\ the length $l_a^t$
+            \item all arcs on that path receive maximum feasible flow
+            \item probabilities are set a posteriori
+        \end{itemize}
+    \end{block}
 \end{frame}
 
 \begin{frame}
-    \frametitle{Combining regret bounds and flow on shortest paths}
+    \frametitle{Combining gain guarantee and properties of flows}
 
+    \begin{block}{Using the gain guarantee}
+        \begin{equation*}
+            G \geq (1 - \epsilon) G_* - \dfrac{\log m}{\epsilon}
+        \end{equation*}
+        
+    \end{block}
+
+    \begin{block}{and simple flow considerations}
+        \begin{itemize}
+            \item $G_* \begin{dcases} 
+                    \text{gain of the best action in hindsight}\\
+                    \text{congestion rate of the most congested arc}
+                \end{dcases}$
+            \item $F / F^* \geq G$: approximation ratio bounds the
+                expected gain
+        \end{itemize}
+    \end{block}
+
+    \begin{block}{results in}
+        \begin{itemize}
+            \item If $G_* = \log m~\epsilon^{-2}$ then
+                $F / G_* \geq (1 - 2\epsilon) F^*$ \alert{$\leftarrow$ AS}
+            \item Runtime: $O(km^2\log m~\epsilon^{-2})$ \alert{$\leftarrow$ FPT}
+        \end{itemize}
+    \end{block}
 \end{frame}
 
 \begin{frame}
     \frametitle{Numerical experiments}
+    
+    \begin{figure}
+    \includegraphics[width=\textwidth]{benchmark_multiflow_ba.png}
+    \caption{Performance of LP, column generation, and FPTAS}
+    \end{figure}
 
 \end{frame}
 
 \begin{frame}
     \frametitle{Conclusion}
 
-    CDN design gives a strong incentive to study multiflow.
+    \begin{block}{Highlights}
+        \begin{itemize}
+            \item CDN design naturally involves multiflows
+            \item Approximation: an interesting alternative to exact algorithms
+        \end{itemize}
+    \end{block}
 
-    Interesting alternative to exact resolution.
+    \begin{block}{Achievements}
+        \begin{itemize}
+            \item Studied in depth a theoretical problem
+            \item Implemented a state-of-the-art algorithm
+            \item Integrated it in an Operations Research library
+        \end{itemize}
+    \end{block}
 
-
+    \begin{block}{Perspectives}
+        \begin{itemize}
+            \item Studying the matrix multiplicative weights algorithm
+            \item Application to solving SDP approximatively
+        \end{itemize}
+        during a PhD at Orange Labs and Universit\'e Paris-Dauphine
+    \end{block}
 \end{frame}
 
 
