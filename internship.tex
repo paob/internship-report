@@ -60,26 +60,41 @@ Demand}
 
 \end{frame}
 
-\subsection{Content Delivery Network}
+\subsection{A solution: Content Delivery Network}
 \begin{frame}
     \frametitle{Content Delivery Network}
 
-    A Content Delivery Network is a distributed storage architecture.
+    \begin{itemize}
+        \item distributed storage architecture
+        \item reduced upstream bandwidth consumption
+        \item increased quality of service
+    \end{itemize}
+    \begin{figure}
+    \includegraphics[height=0.6\textheight]{cdn_or_not.png}
+    \caption{Caching content closer to demand}
+    \end{figure}
 
-    Provides content to users by caching it close to where it is requested.
+\end{frame}
 
-    Less upstream bandwidth consumption.
+\subsection{Assessing demand satisfaction}
+\begin{frame}
+    \frametitle{Multicommodity Flow = Content Delivery}
+
+    \begin{center}
+    \includegraphics[trim = 20mm 20mm 20mm 20mm, clip, width=0.6\textwidth]{earth.png}
+
+        \begin{tabular}{r | l}
+        source & cache server\\
+        target & client\\ 
+        capacity & bandwidth\\ 
+        commodity & content\\
+        \end{tabular}
+    \end{center}
+
 \end{frame}
 
 \section{Multicommodity Flow}
-\begin{frame}
-    \frametitle{Content Delivery = Multicommodity Flow}
-
-    Insert a beautiful picture of multiple servers delivering contents to
-    multiple clients.
-
-\end{frame}
-
+\subsection{Solving large flow problems}
 \begin{frame}
     \frametitle{Fractional Multiflow is in \sc{P}}
     
@@ -154,7 +169,7 @@ Demand}
 
 \end{frame}
 
-\subsection{FPTAS}
+\subsection{A fast approximation algorithm}
 \begin{frame}
     \frametitle{Primal-dual approximation algorithm}
 
@@ -167,11 +182,11 @@ Demand}
         \end{itemize}
     \end{block}
 
-    There exists combinatorial algorithms that achieve such guarantees.
+    There are combinatorial algorithms that achieve such guarantees.
 
     \begin{block}{How to design one?}
         \begin{itemize}
-            \item based on the multiplicative weights algorithm
+            \item leverage the multiplicative weights algorithm
             \item reuse ideas from column generation
         \end{itemize}
     \end{block}
@@ -182,10 +197,10 @@ Demand}
     \frametitle{Multiplicative weights}
 
     \begin{block}{Background}
-        Discovered several times:
+        Discovered several times
         \begin{itemize}
-            \item 1950's: machine learning
-            \item 1970's: continuous optimization
+            \item 1950's: game theory
+            \item 1970's: machine learning
             \item 2000's: design of competitive online algorithms
             \item 2010's: approximation algorithms for SDP
         \end{itemize}
@@ -193,7 +208,7 @@ Demand}
     \begin{block}{Definition}
         Given a finite set of actions with bounded gain
         \begin{equation*}
-            \mathcal{A} = \{ a~|~g_a^t \in [-1, 1]  \}
+            \mathcal{A} = \{ a~|~g_a^t \in [0, 1]  \}
         \end{equation*}
 
         Associate weights 
@@ -220,14 +235,15 @@ Demand}
 
     \begin{block}{has a guaranteed gain of}
         \begin{equation*}
-        G \geq G_a - \epsilon |G_a| - \frac{\ln |A|}{\epsilon}, \forall a \in
-        \mathcal{A}
+            G \geq (1 - \epsilon) G_a - \frac{\ln |\mathcal{A}|}{\epsilon},
+            ~\forall a \in \mathcal{A}
         \end{equation*}
     \end{block}
     
     \begin{equation*}
     \begin{array}{l l}
         G = \sum_t \mathbb{E}(g^t) & \text{expected gain of the algorithm}\\
+        \\
         G_a = \sum_t g^t_a & \text{gain of action $a$}
     \end{array}
     \end{equation*}
@@ -275,7 +291,7 @@ Demand}
                     \text{gain of the best action in hindsight}\\
                     \text{congestion rate of the most congested arc}
                 \end{dcases}$
-            \item $F / F^* \geq G$: approximation ratio bounds the
+            \item $F / F^* \geq G$: approximation ratio bounds 
                 expected gain
         \end{itemize}
     \end{block}
@@ -299,6 +315,7 @@ Demand}
 
 \end{frame}
 
+\section{Conclusion \& Perspectives}
 \begin{frame}
     \frametitle{Conclusion}
 
@@ -311,7 +328,7 @@ Demand}
 
     \begin{block}{Achievements}
         \begin{itemize}
-            \item Studied in depth a theoretical problem
+            \item Studied a theoretical problem in-depth
             \item Implemented a state-of-the-art algorithm
             \item Integrated it in an Operations Research library
         \end{itemize}
@@ -320,11 +337,20 @@ Demand}
     \begin{block}{Perspectives}
         \begin{itemize}
             \item Studying the matrix multiplicative weights algorithm
-            \item Application to solving SDP approximatively
+            \item Applying it to solve SDP approximatively
         \end{itemize}
         during a PhD at Orange Labs and Universit\'e Paris-Dauphine
     \end{block}
 \end{frame}
 
+\begin{frame}
+    \frametitle{Thank you!}
+
+    \begin{center}
+        \includegraphics[width=0.5\textwidth]{approx_multiflow.png}
+
+        Any questions?
+    \end{center}
+\end{frame}
 
 \end{document}
